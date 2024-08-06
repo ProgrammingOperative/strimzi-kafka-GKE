@@ -1,0 +1,13 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: my-cluster
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/name: my-cluster-kafka
+  endpoints:
+  - port: 9404
+    interval: 10s
+    path: /metrics

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-exporter
+  labels:
+    app.kubernetes.io/name: kafka-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka-exporter
+    spec:
+      containers:
+      - name: exporter
+        image: danielqsj/kafka-exporter:v1.6.0
+        args:
+        - --kafka.server=my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+        ports:
+        - containerPort: 9308
+          name: prometheus
+
+
+
+apiVersion: monitoring.coreos.com/v1
+kind: Service
+metadata:
+  name: kafka-exporter
+  namespace: kafka  # This should be the namespace where Prometheus is deployed
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-exporter
+  endpoints:
+    - port: prometheus
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - kafka  # This should match the namespace where your Kafka Exporter is deployed
+
